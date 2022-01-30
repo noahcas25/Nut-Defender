@@ -8,6 +8,6 @@ public class EnemyControllerScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.position += (transform.forward * Time.deltaTime * 2);
+        transform.position += (transform.forward * Time.deltaTime * (float)1.5);
     }
 }
