@@ -10,19 +10,26 @@ public class GameControllerScript : MonoBehaviour
     [SerializeField]
     private GameObject player, enemies, markers, nutTreasure;
 
-// UI variables
+// UI elememts
     [SerializeField]
     private GameObject highScoreUI, scoreUI, gameOverCanvas;
 
     private int enemiesCount;
-    private bool shouldSpawn = true;
     private int randomEnemy;
     private int score = 0;
     private int highScore = 0;
+    private float spawnTime = 2;
+    private bool shouldSpawn = true;
+    private GameObject inGameScoreUi;
+    private GameObjectPool enemyPool;
 
     void Start() {
         Application.targetFrameRate = 60;
         enemiesCount = enemies.transform.childCount;
+        inGameScoreUi = GameObject.FindWithTag("ScoreUI");
+        enemyPool = GetComponent<GameObjectPool>();
+        enemyPool.AddToPool(10);
+        StartCoroutine(SpawnTimer((float)5));
     }
 
     // Update is called once per frame
@@ -40,6 +47,7 @@ public class GameControllerScript : MonoBehaviour
 
 // Function for stopping gameplay
     public void GameOver() {
+        GetComponent<AudioSource>().Play();
         Time.timeScale = 0f;
         player.GetComponent<PlayerControllerScript>().setGameOver(true);
         gameOverCanvas.SetActive(true);
@@ -56,29 +64,37 @@ public class GameControllerScript : MonoBehaviour
 
 // Increments the score for every point recieved
     public void IncrementScore(int value) {
+
+        if(score%10==0 && spawnTime > 1) {
+            spawnTime -= (float)0.1;
+        }
+
         score += value;
+        inGameScoreUi.GetComponent<TMPro.TextMeshProUGUI>().text = "" + score;
     }
 
 // Spawns random enemy and positions them at the target
-    private void SpawnEnemy() {
-        StartCoroutine(SpawnTimer());
+    private void SpawnEnemy() { 
+        StartCoroutine(SpawnTimer(spawnTime));
 
-        randomEnemy = Random.Range(0, enemiesCount);
-        GameObject newEnemy = Instantiate(enemies.transform.GetChild(randomEnemy).gameObject);
-        newEnemy.transform.position = markers.transform.GetChild(Random.Range(0,8)).position; 
+        GameObject newEnemy = enemyPool.Get();
+        newEnemy.transform.position = markers.transform.GetChild(Random.Range(0, 8)).position;
         newEnemy.transform.LookAt(nutTreasure.transform, Vector3.up);
-
-        // push the bird enemy up higher than the rest
-        if(randomEnemy >= 2) 
-            newEnemy.transform.position += new Vector3(0, 1, 0);
-
         newEnemy.SetActive(true);
+
+        if(newEnemy.CompareTag("FlyingEnemy")) {
+            newEnemy.transform.position += new Vector3(0, 1, 0);
+        }
+    }
+
+    public void Exit() {
+        Application.Quit();
     }
 
 // Timer for spawning enemy
-    IEnumerator SpawnTimer() {
+    IEnumerator SpawnTimer(float timer) {
         shouldSpawn = false;
-        yield return new WaitForSeconds((float)2);
+        yield return new WaitForSeconds(timer);
         shouldSpawn = true;
     }
 

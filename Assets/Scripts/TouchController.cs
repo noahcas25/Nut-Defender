@@ -17,7 +17,6 @@ public class TouchController : MonoBehaviour
 
 // Start is called before the first frame update
     void Start() {
-        // player = GameObject.FindWithTag("Player");
         StartCoroutine(TouchTimer());
     }
 
