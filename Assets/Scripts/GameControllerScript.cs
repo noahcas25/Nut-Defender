@@ -65,8 +65,8 @@ public class GameControllerScript : MonoBehaviour
 // Increments the score for every point recieved
     public void IncrementScore(int value) {
 
-        if(score%10==0 && spawnTime > 1) {
-            spawnTime -= (float)0.1;
+        if(score%10==0 && spawnTime > 0.8) {
+            spawnTime -= (float)0.2;
         }
 
         score += value;
@@ -87,9 +87,7 @@ public class GameControllerScript : MonoBehaviour
         }
     }
 
-    public void Exit() {
-        Application.Quit();
-    }
+    public void Exit() => Application.Quit();
 
 // Timer for spawning enemy
     IEnumerator SpawnTimer(float timer) {
